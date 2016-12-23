@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 import Queue
+from numpy import *
 def displayArray(array):
     index = 0
     for x in array:
@@ -21,12 +22,12 @@ def displayTree(node):
             for x in curNode:
                 if x == 'value':
                     if curNode['height'] != curH:
-                        print ''
+                        print '\n\n\n'
                         curH = curNode['height']
                     print curNode[x],
                 elif x != 'height':
                     q.put(curNode[x])
-    print ''
+    print '\n\n\n'
 # 展示dataMat 和 label两个（两个行数相同）
 def displayMatAndLabel(dataMat,label):
     i = 0
@@ -51,16 +52,16 @@ def splitDataMatAndLabel(dataMat,label,selectIndex):
             otherDataMat.append(dataMat[i])
             otherLabel.append(label[i])
     return newDataMat, newLabel, otherDataMat, otherLabel
-def loadDataSet(filePath):
+def loadDataSet(filePath,splitMark):
     dataMat = []
     label = []
     columnName = []
     with open(filePath) as readFile:
         line = readFile.readline()
-        splitRes = line.strip().split(',')
+        splitRes = line.strip().split(splitMark)
         columnName.extend(splitRes[1:len(splitRes)-1])
         for line in readFile.readlines():
-            splitRes = line.strip().split(',') # 要注意把多余的空格删去 strip即可，否则划分的时候容易多出来其他值
+            splitRes = line.strip().split(splitMark) # 要注意把多余的空格删去 strip即可，否则划分的时候容易多出来其他值
             dataMat.append(splitRes[1:len(splitRes)-1])
             label.append(splitRes[-1])
     return dataMat, label, columnName
@@ -96,7 +97,7 @@ def maxDifferentLabel(label):
         else:
             setContainer[x] = 1
     return maxValue
-# 找到dataMat第index列的值位value的行，并且找到对应的label行 并且删除对应的列
+# 找到dataMat第index列的值位value的行，并且找到对应的label行
 def findRows(dataMat,label,index,value):
     newDataMat = []
     newLabel = []
@@ -108,7 +109,22 @@ def findRows(dataMat,label,index,value):
             newLabel.append(label[i])
         i += 1
     return newDataMat, newLabel
-
+# 将dataMat的第index列根据splitvalue 划分成小雨等于和大于的两部分
+def findRowsWithConsecutiveValue(dataMat,label,index,splitVale):
+    newDataMatBig = []
+    newLabelBig = []
+    newDataSmall = []
+    newLabelSmall = []
+    i = 0
+    for x in dataMat:
+        if double(x[index]) <= double(splitVale):
+            newDataSmall.append(x)
+            newLabelSmall.append(label[i])
+        else:
+            newDataMatBig.append(x)
+            newLabelBig.append(label[i])
+        i += 1
+    return newDataMatBig, newLabelBig, newDataSmall, newLabelSmall
 def translateChinese(value,columnName):
     res = 0
     for x in columnName:
@@ -116,3 +132,9 @@ def translateChinese(value,columnName):
             return res
         res += 1
     return res
+def isNumber(x):
+    try:
+        double(x)
+        return True
+    except:
+        return False
