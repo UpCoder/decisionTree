@@ -11,15 +11,14 @@ def handlePositive(dataMat, label, caluFunction,columnName):
             maxColumnResult = selectColumnResult
     return maxColumnResult
 # 处理负相关的函数，在这里包括信息增益、信息增益率
-def handleNegitive(dataMat, label, caluFunction):
-    maxIndex = 999999.0
-    maxValue = ""
+def handleNegitive(dataMat, label, caluFunction, columnName):
+    minColumnResult = SelectColumnResult(0, columnName[0], False, 99999999)
     for i in range(len(dataMat[0])):
-        curGain = caluFunction(dataMat, label, i)
-        if curGain < maxIndex:
-            maxValue = i
-            maxIndex = curGain
-    return maxIndex, maxValue
+        # print 'i is ', i
+        selectColumnResult = caluFunction(dataMat, label, i, columnName[i])
+        if selectColumnResult < minColumnResult:
+            minColumnResult = selectColumnResult
+    return minColumnResult
 # 构建决策数，现在默认的是使用信息增益作为评判的标准
 def buildID3Tree(dataMat,label,columnName,columnRanges,height=0, caluFunction=handleCaluGain,handleFunction = handlePositive):
     node = {}
@@ -97,7 +96,7 @@ def columnsDiffRange(dataMat, columnName):
         temp = set([])
         for y in range(len(dataMat)):
             temp.add(dataMat[y][x])
-        res[columnName[x]] = temp;
+        res[columnName[x]] = temp
     return res
 # 留出法测试
 def leftOutTest(node, testData ,testLabel,columnName):

@@ -133,12 +133,87 @@ def caluInformationGainRateConsecutive(dataMat,label,x):
     IV += ((1.0*count)/(1.0*len(label)))*log2((1.0*count)/(1.0*len(label)))
     IV = -IV
     return ((gain*1.0)/IV), selectValue
+def handleCaluGainRate(dataMat,label,x,name):
+    example = dataMat[0][x]
+    if isNumber(example):
+        gain, selectValue = caluInfomationGainConsecution(dataMat, label, x)
+        # print 'is Number'
+        return SelectColumnResult(x, name, True, gain, selectValue)
+    else:
+        # print 'is not number'
+        gain = caluInformationGainRate(dataMat, label, x)
+        return SelectColumnResult(x, name, False, gain)
 # datamat 是样本数据 label是样本标签 x 是根据第x个属性划分数据集 基尼系数
 def caluInformationGini(dataMat,label,x):
     res = 0.0
     dict = dictDifferentDataMat(dataMat, x)
-    for x in dict:
-        posibility = (dict[x]*1.0)/(1.0*len(label))
-        res += posibility*posibility
-    res = 1 - res
+    dictLabel = {}
+    for temp in dict:
+        allCount = 0
+        for i in range(len(dataMat)):
+            if dataMat[i][x] == temp:
+                allCount += 1
+                if label[i] in dictLabel:
+                    dictLabel[label[i]] += 1
+                else:
+                    dictLabel[label[i]] = 1
+        gain = 0.0
+        for labelTemp in dictLabel:
+            gain += ((1.0*dictLabel[labelTemp])/(1.0*allCount))*((1.0*dictLabel[labelTemp])/(1.0*allCount))
+        gain = 1 - gain
+        res += (1.0*allCount)/(1.0*len(label))*gain
     return res
+def caluInformationGiniConsecutive(dataMat,label,x):
+    res = 9999999.9999
+    splitValues = []
+    beSplitedValus = []
+    selectValue = dataMat[0][x]
+    for temp in dataMat:
+        beSplitedValus.append(temp[x])
+    for i in range(len(beSplitedValus)-1):
+        # print beSplitedValus[i],beSplitedValus[i+1]
+        splitValues.append((1.0*double(beSplitedValus[i])+1.0*double(beSplitedValus[i+1]))/2.0)
+    for i in range(len(splitValues)):
+        tempDict = [0,0]    # 小于等于、大于的个数分别是多少个
+        dictBig = {}
+        dictSmall = {}
+        index = 0
+        for temp in dataMat:
+            # print '1x is ', x
+            if double(temp[x]) <= splitValues[i]:
+                tempDict[0] += 1
+                if label[x] in dictSmall:
+                    dictSmall[label[x]] += 1
+                else:
+                    dictSmall[label[x]] = 1
+            else:
+                tempDict[1] += 1
+                if label[x] in dictBig:
+                    dictBig[label[x]] += 1
+                else:
+                    dictBig[label[x]] = 1
+            index += 1
+        giniBig = 0.0
+        for index in dictBig:
+            giniBig += (dictBig[index]*1.0)/(1.0*tempDict[1])*(dictBig[index]*1.0)/(1.0*tempDict[1])
+        giniBig = 1 - giniBig
+        giniSmall = 0.0
+        for index in dictSmall:
+            giniSmall += (dictSmall[index]*1.0)/(1.0*tempDict[0])*(dictSmall[index]*1.0)/(1.0*tempDict[0])
+        giniSmall = 1 - giniSmall
+        tempGiniIndex = (1.0*tempDict[0])/(1.0*len(label))*giniSmall + (1.0*tempDict[1])/(1.0*len(label))*giniBig
+        if tempGiniIndex < res:
+            res = tempGiniIndex
+            selectValue = splitValues[i]
+    return res, selectValue
+def handleCaluGini(dataMat,label,x,name):
+    example = dataMat[0][x]
+    if isNumber(example):
+        # print 'x is ', x
+        gain, selectValue = caluInformationGiniConsecutive(dataMat, label, x)
+        # print 'is Number'
+        return SelectColumnResult(x, name, True, gain, selectValue)
+    else:
+        # print 'is not number'
+        gain = caluInformationGini(dataMat, label, x)
+        return SelectColumnResult(x, name, False, gain)

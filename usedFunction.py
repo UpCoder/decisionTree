@@ -52,17 +52,34 @@ def splitDataMatAndLabel(dataMat,label,selectIndex):
             otherDataMat.append(dataMat[i])
             otherLabel.append(label[i])
     return newDataMat, newLabel, otherDataMat, otherLabel
-def loadDataSet(filePath,splitMark):
+def loadDataSet(filePath,splitMark,loadFirst):
     dataMat = []
     label = []
     columnName = []
     with open(filePath) as readFile:
         line = readFile.readline()
         splitRes = line.strip().split(splitMark)
-        columnName.extend(splitRes[1:len(splitRes)-1])
+        if loadFirst:
+            columnName.extend(splitRes[0:len(splitRes)-1])
+        else:
+            columnName.extend(splitRes[1:len(splitRes)-1])
         for line in readFile.readlines():
             splitRes = line.strip().split(splitMark) # 要注意把多余的空格删去 strip即可，否则划分的时候容易多出来其他值
-            dataMat.append(splitRes[1:len(splitRes)-1])
+            tempArr = []
+            for x in range(len(splitRes)-1):
+                if x == 0 and loadFirst:
+                    if isNumber(splitRes[x]):
+                        tempArr.append(double(splitRes[x]))
+                    else:
+                        tempArr.append(splitRes[x])
+                    continue
+                if x == 0 and (not loadFirst):
+                    continue
+                if isNumber(splitRes[x]):
+                    tempArr.append(double(splitRes[x]))
+                else:
+                    tempArr.append(splitRes[x])
+            dataMat.append(tempArr)
             label.append(splitRes[-1])
     return dataMat, label, columnName
 # 返回label有多少个类比
