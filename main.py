@@ -7,9 +7,11 @@ dataMat, label, columnName = loadDataSet("./bank.txt", ';', True)
 testDataMat, testLabel, testColumnName = loadDataSet("./banktest.txt", ";", True)
 columnRanges = columnsDiffRange(dataMat, columnName)
 displayArray(columnRanges)
-node = buildID3Tree(dataMat, label, columnName, columnRanges, 0, handleCaluGini, handleNegitive)
+buildTree = GenerateDecisionTree()
+testTree = TestAccurate()
+node = buildTree.buildDecisionTree(dataMat, label, columnName, columnRanges, 0, handleCaluGini, handleNegitive)
 displayTree(node)
-print leftOutTest(node, testDataMat, testLabel, columnName)
+print testTree.leftOutTest(node, testDataMat, testLabel, columnName)
 
 
 # dataMat, label, columnName = loadDataSet("./dataset3.txt", ',')

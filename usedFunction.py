@@ -155,3 +155,12 @@ def isNumber(x):
         return True
     except:
         return False
+#获取所有的列的取值范围
+def columnsDiffRange(dataMat, columnName):
+    res = {}
+    for x in range(len(dataMat[0])):
+        temp = set([])
+        for y in range(len(dataMat)):
+            temp.add(dataMat[y][x])
+        res[columnName[x]] = temp
+    return res
